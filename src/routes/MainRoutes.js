@@ -17,11 +17,18 @@ const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons
 // sample page routing
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
 
+//Auth Provider
+import { AuthProvider } from 'context/AuthContext';
+
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = {
     path: '/',
-    element: <MainLayout />,
+    element: (
+        <AuthProvider>
+            <MainLayout />
+        </AuthProvider>
+    ),
     children: [
         {
             path: '/',

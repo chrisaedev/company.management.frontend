@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useSelector } from 'react-redux';
 
-// material-ui
+// Api
+import Api from '../../../../api/api';
+
+// Material-Ui
 import { useTheme } from '@mui/material/styles';
 import {
     Box,
@@ -35,11 +38,15 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import Google from 'assets/images/icons/social-google.svg';
 
+// Auth Context
+import AuthContext from '../../../../context/AuthContext';
+
 // ============================|| FIREBASE - LOGIN ||============================ //
 
 const FirebaseLogin = ({ ...others }) => {
     const theme = useTheme();
-    const scriptedRef = useScriptRef();
+    let { signin } = useContext(AuthContext);
+    //const scriptedRef = useScriptRef();
     const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
     const customization = useSelector((state) => state.customization);
     const [checked, setChecked] = useState(true);
@@ -120,8 +127,8 @@ const FirebaseLogin = ({ ...others }) => {
 
             <Formik
                 initialValues={{
-                    email: 'info@codedthemes.com',
-                    password: '123456',
+                    email: '',
+                    password: '',
                     submit: null
                 }}
                 validationSchema={Yup.object().shape({
@@ -130,16 +137,19 @@ const FirebaseLogin = ({ ...others }) => {
                 })}
                 onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
                     try {
-                        if (scriptedRef.current) {
-                            setStatus({ success: true });
-                            setSubmitting(false);
-                        }
+                        await signin(values);
+                        setStatus({ success: true });
+                        setSubmitting(false);
                     } catch (err) {
-                        console.error(err);
-                        if (scriptedRef.current) {
-                            setStatus({ success: false });
+                        let response = err.response;
+                        setStatus({ success: false });
+                        setSubmitting(false);
+                        if (response?.status == 401) {
+                            setErrors({ email: true, password: true, submit: 'Not active account found with the given credentials' });
+                        } else if (response?.status) {
                             setErrors({ submit: err.message });
-                            setSubmitting(false);
+                        } else {
+                            setErrors({ submit: 'The service is temporary unavailable, please try again later' });
                         }
                     }
                 }}

@@ -8,11 +8,18 @@ import MinimalLayout from 'layout/MinimalLayout';
 const AuthLogin3 = Loadable(lazy(() => import('views/pages/authentication/authentication3/Login3')));
 const AuthRegister3 = Loadable(lazy(() => import('views/pages/authentication/authentication3/Register3')));
 
+//Auth Provider
+import { AuthProvider } from 'context/AuthContext';
+
 // ==============================|| AUTHENTICATION ROUTING ||============================== //
 
 const AuthenticationRoutes = {
     path: '/',
-    element: <MinimalLayout />,
+    element: (
+        <AuthProvider>
+            <MinimalLayout />
+        </AuthProvider>
+    ),
     children: [
         {
             path: '/pages/login/login3',
