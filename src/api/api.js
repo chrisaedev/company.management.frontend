@@ -14,10 +14,14 @@ const updateInterceptors = async (tokens = null) => {
         localStorage.getItem('authTokens') ? (tokens = JSON.parse(localStorage.getItem('authTokens'))) : null;
     }
     if (tokens) {
+        // Add interceotor with access_token as Bearer Authorization
         instance.interceptors.request.use(function (config) {
             config.headers.Authorization = `Bearer ${tokens.access}`;
             return config;
         });
+    } else {
+        // Remove interceotors
+        instance.interceptors.request.eject();
     }
 };
 
