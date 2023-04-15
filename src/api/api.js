@@ -11,7 +11,7 @@ const instance = axios.create({
 const updateInterceptors = async (tokens = null) => {
     // This function will add the access token to the Bearer token Authorization
     if (!tokens) {
-        tokens = localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null;
+        localStorage.getItem('authTokens') ? (tokens = JSON.parse(localStorage.getItem('authTokens'))) : null;
     }
     if (tokens) {
         instance.interceptors.request.use(function (config) {

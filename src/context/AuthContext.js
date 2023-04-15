@@ -58,6 +58,7 @@ export const AuthProvider = ({ children }) => {
             let payload = { refresh: authTokens.refresh };
             let response = await Api.refreshToken(payload).catch((err) => {
                 //Err while refreshing
+                logout();
             });
 
             if (response?.status === 200) {
