@@ -45,9 +45,9 @@ export const AuthProvider = ({ children }) => {
     let logout = () => {
         let tokens = JSON.parse(localStorage.getItem('authTokens'));
         if (tokens) {
+            _removeTokens();
             let refreshToken = tokens.refresh;
             Api.logout({ refresh: refreshToken });
-            _removeTokens();
         }
         navigate('pages/login');
     };

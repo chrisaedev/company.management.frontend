@@ -8,7 +8,7 @@ const instance = axios.create({
     baseURL: process.env.REACT_APP_API_ENDPOINT || `http://demo1.localhost:8000/api`
 });
 
-const updateInterceptors = async (tokens = null) => {
+const _updateInterceptors = async (tokens = null) => {
     // This function will add the access token to the Bearer token Authorization
     if (!tokens) {
         localStorage.getItem('authTokens') ? (tokens = JSON.parse(localStorage.getItem('authTokens'))) : null;
@@ -25,21 +25,25 @@ const updateInterceptors = async (tokens = null) => {
     }
 };
 
-updateInterceptors();
+_updateInterceptors();
 
 const Api = {
     // authentication
     login: async function (payload) {
         const response = await instance.post(`/auth/login/`, payload);
         const tokens = response.data;
-        updateInterceptors(tokens);
+        _updateInterceptors(tokens);
         return response;
     },
     logout: function (payload) {
+        _updateInterceptors();
         return instance.post(`/auth/logout/`, payload);
     },
-    refreshToken: function (payload) {
-        return instance.post(`/auth/refresh/`, payload);
+    refreshToken: async function (payload) {
+        const response = await instance.post(`/auth/refresh/`, payload);
+        const tokens = response.data;
+        _updateInterceptors(tokens);
+        return response;
     },
 
     // Features
