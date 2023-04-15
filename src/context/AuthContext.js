@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const storeTokens = (data) => {
+    const _storeTokens = (data) => {
         setAuthTokens(data);
         localStorage.setItem('authTokens', JSON.stringify(data));
         let decoded_data = jwt_decode(data.access);
@@ -23,12 +23,17 @@ export const AuthProvider = ({ children }) => {
             setUser(decoded_data.user);
         }
     };
+    const _removeTokens = () => {
+        setAuthTokens(null);
+        localStorage.removeItem('authTokens');
+    };
 
     //Email and Passowrd Signin
     let login = async (payload) => {
+        _removeTokens();
         let response = await Api.login(payload);
         if (response.status === 200) {
-            storeTokens(response.data);
+            _storeTokens(response.data);
             navigate('/');
         } else {
             alert('Something went wrong!');
@@ -42,8 +47,7 @@ export const AuthProvider = ({ children }) => {
         if (tokens) {
             let refreshToken = tokens.refresh;
             Api.logout({ refresh: refreshToken });
-            setAuthTokens(null);
-            localStorage.removeItem('authTokens');
+            _removeTokens();
         }
         navigate('pages/login');
     };
@@ -57,7 +61,7 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (response?.status === 200) {
-                storeTokens(response.data);
+                _storeTokens(response.data);
             } else {
                 logout();
             }
