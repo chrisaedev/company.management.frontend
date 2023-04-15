@@ -1,6 +1,6 @@
-import { ConstructionOutlined } from '@mui/icons-material';
-import Api from 'api/api';
 import { useState, useEffect, forwardRef, useImperativeHandle, createContext } from 'react';
+import jwt_decode from 'jwt-decode';
+import Api from 'api/api';
 import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
@@ -12,14 +12,23 @@ export const AuthProvider = ({ children }) => {
     let [authTokens, setAuthTokens] = useState(() =>
         localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null
     );
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const storeTokens = (data) => {
+        setAuthTokens(data);
+        localStorage.setItem('authTokens', JSON.stringify(data));
+        let decoded_data = jwt_decode(data.access);
+        if (decoded_data.user) {
+            setUser(decoded_data.user);
+        }
+    };
+
     //Email and Passowrd Signin
-    let signin = async (payload) => {
-        let response = await Api.signin(payload);
+    let login = async (payload) => {
+        let response = await Api.login(payload);
         if (response.status === 200) {
-            setAuthTokens(response.data);
-            localStorage.setItem('authTokens', JSON.stringify(response.data));
+            storeTokens(response.data);
             navigate('/');
         } else {
             alert('Something went wrong!');
@@ -27,11 +36,16 @@ export const AuthProvider = ({ children }) => {
         return response;
     };
 
-    //SignOut to remove tokens and got lo login page
-    let signout = () => {
-        setAuthTokens(null);
-        localStorage.removeItem('authTokens');
-        navigate('pages/login/login3');
+    //LogOut to remove tokens and got lo login page
+    let logout = () => {
+        let tokens = JSON.parse(localStorage.getItem('authTokens'));
+        if (tokens) {
+            let refreshToken = tokens.refresh;
+            Api.logout({ refresh: refreshToken });
+            setAuthTokens(null);
+            localStorage.removeItem('authTokens');
+        }
+        navigate('pages/login');
     };
 
     //Update the tokens
@@ -43,11 +57,12 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (response?.status === 200) {
-                setAuthTokens(response.data);
-                localStorage.setItem('authTokens', JSON.stringify(response.data));
+                storeTokens(response.data);
             } else {
-                signout();
+                logout();
             }
+        } else {
+            logout();
         }
         if (loading) {
             setLoading(false);
@@ -60,7 +75,7 @@ export const AuthProvider = ({ children }) => {
             updateToken();
         }
 
-        let intervalTime = 240000;
+        const intervalTime = process.env.REACT_APP_REFRESH_TIMEOUT;
 
         let interval = setInterval(() => {
             if (authTokens) {
@@ -71,8 +86,9 @@ export const AuthProvider = ({ children }) => {
     }, [authTokens, loading]);
 
     let contextData = {
-        signin: signin,
-        signout: signout
+        user: user,
+        login: login,
+        logout: logout
     };
     return <AuthContext.Provider value={contextData}> {loading ? null : children}</AuthContext.Provider>;
 };

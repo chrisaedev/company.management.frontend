@@ -45,7 +45,7 @@ import AuthContext from '../../../../context/AuthContext';
 
 const FirebaseLogin = ({ ...others }) => {
     const theme = useTheme();
-    let { signin } = useContext(AuthContext);
+    let { login } = useContext(AuthContext);
     //const scriptedRef = useScriptRef();
     const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
     const customization = useSelector((state) => state.customization);
@@ -137,7 +137,7 @@ const FirebaseLogin = ({ ...others }) => {
                 })}
                 onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
                     try {
-                        await signin(values);
+                        await login(values);
                         setStatus({ success: true });
                         setSubmitting(false);
                     } catch (err) {

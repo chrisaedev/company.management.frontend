@@ -3,6 +3,7 @@ import { lazy } from 'react';
 // project imports
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
+const ItemsList = Loadable(lazy(() => import('features/storage/items/pages/ItemsList')));
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
@@ -38,59 +39,28 @@ const MainRoutes = {
             path: 'dashboard',
             children: [
                 {
-                    path: 'default',
+                    path: 'main',
                     element: <DashboardDefault />
                 }
             ]
         },
         {
-            path: 'utils',
+            path: 'features',
             children: [
                 {
-                    path: 'util-typography',
-                    element: <UtilsTypography />
+                    path: 'storage',
+                    children: [
+                        {
+                            path: 'dashboard',
+                            element: <DashboardDefault />
+                        },
+                        {
+                            path: 'items',
+                            element: <ItemsList />
+                        }
+                    ]
                 }
             ]
-        },
-        {
-            path: 'utils',
-            children: [
-                {
-                    path: 'util-color',
-                    element: <UtilsColor />
-                }
-            ]
-        },
-        {
-            path: 'utils',
-            children: [
-                {
-                    path: 'util-shadow',
-                    element: <UtilsShadow />
-                }
-            ]
-        },
-        {
-            path: 'icons',
-            children: [
-                {
-                    path: 'tabler-icons',
-                    element: <UtilsTablerIcons />
-                }
-            ]
-        },
-        {
-            path: 'icons',
-            children: [
-                {
-                    path: 'material-icons',
-                    element: <UtilsMaterialIcons />
-                }
-            ]
-        },
-        {
-            path: 'sample-page',
-            element: <SamplePage />
         }
     ]
 };
