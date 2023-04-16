@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null
     );
     const [user, setUser] = useState(null);
+    const [refreshTimeout, setRefreshTimeout] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const _storeTokens = (data) => {
@@ -21,6 +22,9 @@ export const AuthProvider = ({ children }) => {
         let decoded_data = jwt_decode(data.access);
         if (decoded_data.user) {
             setUser(decoded_data.user);
+        }
+        if (decoded_data.refresh_timeout) {
+            setRefreshTimeout(decoded_data.refresh_timeout);
         }
     };
     const _removeTokens = () => {
@@ -74,21 +78,18 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    //Call updateToken every certain interval in order to keep the tokens active
+    // Call updateToken every certain interval in order to keep the tokens active
     useEffect(() => {
         if (loading) {
             updateToken();
         }
 
-        const intervalTime = process.env.REACT_APP_REFRESH_TIMEOUT;
-
-        let interval = setInterval(() => {
-            if (authTokens) {
+        if (refreshTimeout && authTokens) {
+            let interval = setInterval(() => {
                 updateToken();
-            }
-            //  }, intervalTime);
-        }, 5000);
-        return () => clearInterval(interval);
+            }, refreshTimeout);
+            return () => clearInterval(interval);
+        }
     }, [authTokens, loading]);
 
     let contextData = {

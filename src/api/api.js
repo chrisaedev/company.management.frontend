@@ -1,47 +1,51 @@
 import axios from 'axios';
-import pages from 'menu-items/pages';
 
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
-const instance = axios.create({
-    baseURL: process.env.REACT_APP_API_ENDPOINT || `http://demo1.localhost:8000/api`
-});
-
-const _updateInterceptors = async (tokens = null) => {
+const _updateInterceptors = async (instance = null, tokens = null) => {
     // This function will add the access token to the Bearer token Authorization
-    if (!tokens) {
-        tokens = localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null;
-    }
-    if (tokens) {
-        // Add interceotor with access_token as Bearer Authorization
-        instance.interceptors.request.use(function (config) {
-            config.headers.Authorization = `Bearer ${tokens.access}`;
-            return config;
-        });
+    if (instance) {
+        if (!tokens) {
+            // If not tokens are provided, get the tokens from the localstorage
+            tokens = localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null;
+        }
+        if (tokens) {
+            //  If tokens are provided or found on the localstorage, add interceotor
+            //  with access_token as Bearer Authorization
+            instance.interceptors.request.use(function (config) {
+                config.headers.Authorization = `Bearer ${tokens.access}`;
+                return config;
+            });
+        } else {
+            // If no tokens are found, remove authorization header from axios instace
+            delete instance.defaults.headers.common['Authorization'];
+        }
     }
 };
 
-// Update interceptors on initialization
-_updateInterceptors();
+let instance = axios.create({
+    baseURL: process.env.REACT_APP_API_ENDPOINT || `http://demo1.localhost:8000/api`
+});
 
 const Api = {
-    // authentication
+    // Authentication
     login: async function (payload) {
-        _updateInterceptors();
+        _updateInterceptors(instance);
         const response = await instance.post(`/auth/login/`, payload);
         let tokens = response.data;
-        _updateInterceptors(tokens);
+        _updateInterceptors(instance, tokens);
         return response;
     },
-    logout: function (payload) {
-        _updateInterceptors();
-        return instance.post(`/auth/logout/`, payload);
+    logout: async function (payload) {
+        const response = instance.post(`/auth/logout/`, payload);
+        _updateInterceptors(instance);
+        return response;
     },
     refreshToken: async function (payload) {
         const response = await instance.post(`/auth/refresh/`, payload);
         let tokens = response.data;
-        _updateInterceptors(tokens);
+        _updateInterceptors(instance, tokens);
         return response;
     },
 
