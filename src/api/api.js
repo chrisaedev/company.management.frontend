@@ -11,7 +11,7 @@ const instance = axios.create({
 const _updateInterceptors = async (tokens = null) => {
     // This function will add the access token to the Bearer token Authorization
     if (!tokens) {
-        localStorage.getItem('authTokens') ? (tokens = JSON.parse(localStorage.getItem('authTokens'))) : null;
+        tokens = localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null;
     }
     if (tokens) {
         // Add interceotor with access_token as Bearer Authorization
@@ -19,19 +19,18 @@ const _updateInterceptors = async (tokens = null) => {
             config.headers.Authorization = `Bearer ${tokens.access}`;
             return config;
         });
-    } else {
-        // Remove interceotors
-        instance.interceptors.request.eject();
     }
 };
 
+// Update interceptors on initialization
 _updateInterceptors();
 
 const Api = {
     // authentication
     login: async function (payload) {
+        _updateInterceptors();
         const response = await instance.post(`/auth/login/`, payload);
-        const tokens = response.data;
+        let tokens = response.data;
         _updateInterceptors(tokens);
         return response;
     },
@@ -41,7 +40,7 @@ const Api = {
     },
     refreshToken: async function (payload) {
         const response = await instance.post(`/auth/refresh/`, payload);
-        const tokens = response.data;
+        let tokens = response.data;
         _updateInterceptors(tokens);
         return response;
     },
