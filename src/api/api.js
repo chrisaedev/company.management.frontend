@@ -10,16 +10,19 @@ const _updateInterceptors = async (instance = null, tokens = null) => {
             // If not tokens are provided, get the tokens from the localstorage
             tokens = localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null;
         }
+
         if (tokens) {
-            //  If tokens are provided or found on the localstorage, add interceotor
-            //  with access_token as Bearer Authorization
-            instance.interceptors.request.use(function (config) {
+            // Remove existing interceptor
+            instance.interceptors.request.eject(instance.tokenInterceptor);
+
+            // Create new interceptor with updated token
+            instance.tokenInterceptor = instance.interceptors.request.use(function (config) {
                 config.headers.Authorization = `Bearer ${tokens.access}`;
                 return config;
             });
         } else {
-            // If no tokens are found, remove authorization header from axios instace
-            delete instance.defaults.headers.common['Authorization'];
+            // Remove authorization header from axios instance
+            instance.interceptors.request.eject(instance.tokenInterceptor);
         }
     }
 };
