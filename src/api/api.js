@@ -10,7 +10,6 @@ const _updateInterceptors = async (instance = null, tokens = null) => {
             // If not tokens are provided, get the tokens from the localstorage
             tokens = localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null;
         }
-
         if (tokens) {
             // Remove existing interceptor
             instance.interceptors.request.eject(instance.tokenInterceptor);

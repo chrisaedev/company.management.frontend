@@ -3779,9 +3779,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@material-table/core@npm:next":
-  version: 0.2.62
-  resolution: "@material-table/core@npm:0.2.62"
+"@material-table/core@npm:^6.1.15":
+  version: 6.1.15
+  resolution: "@material-table/core@npm:6.1.15"
   dependencies:
     "@babel/runtime": ^7.19.0
     "@date-io/core": ^2.16.0
@@ -3801,12 +3801,12 @@ __metadata:
     prop-types: ^15.8.1
     react-double-scrollbar: 0.0.15
     uuid: ^9.0.0
-    zustand: ^4.1.1
+    zustand: ^4.3.0
   peerDependencies:
     "@mui/system": ">=5.10.7"
-    react: ">=17.0.0"
-    react-dom: ">=17.0.0"
-  checksum: 3f335a0ae2409fab484cf1116f6d1929870ff47b967993a0b3bec23b4f5d802e9d3c4d31f35ca56caeb3a35c2733cc9399a76498349c189d2b546bd534cec9df
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 27e28be0c0396c9ac6d0a54310aee10db1200613cf2fa38cae715fe375f5c0655bfa5069bee7adeb6c452e25630e6acdedb613b2874f6b3767c28f71910abfa4
   languageName: node
   linkType: hard
 
@@ -6190,7 +6190,7 @@ __metadata:
     "@emotion/cache": ^11.9.3
     "@emotion/react": ^11.9.3
     "@emotion/styled": ^11.9.3
-    "@material-table/core": next
+    "@material-table/core": ^6.1.15
     "@mui/icons-material": ^5.8.4
     "@mui/lab": ^5.0.0-alpha.88
     "@mui/material": ^5.8.6
@@ -16483,9 +16483,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zustand@npm:^4.1.1":
-  version: 4.3.6
-  resolution: "zustand@npm:4.3.6"
+"zustand@npm:^4.3.0":
+  version: 4.3.7
+  resolution: "zustand@npm:4.3.7"
   dependencies:
     use-sync-external-store: 1.2.0
   peerDependencies:
@@ -16496,6 +16496,6 @@ __metadata:
       optional: true
     react:
       optional: true
-  checksum: 4d3cec03526f04ff3de6dc45b6f038c47f091836af9660fbf5f682cae1628221102882df20e4048dfe699a43f67424e5d6afc1116f3838a80eea5dd4f95ddaed
+  checksum: 355b414ba4830b6106bcb888077c5f90f40ed649e4127e337eff4fb4ea90e88bf5cccf32344711d743cb92a676a0643a6ab3674ddc60ed49f17ea1bc8e3f58e2
   languageName: node
   linkType: hard

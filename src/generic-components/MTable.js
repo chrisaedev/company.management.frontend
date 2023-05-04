@@ -12,6 +12,8 @@ import { IconPlus } from '@tabler/icons';
 
 // packages
 import MaterialTable from '@material-table/core';
+import { Pages } from '@mui/icons-material';
+import { render } from 'react-dom';
 
 // ==============================|| MTable ||============================== //
 
@@ -23,49 +25,53 @@ const MTable = (props) => {
     const { title = '', getData = null, columns = [], renderCustomFieldsColumns = false, addOrEdit, FormContent = null } = props;
 
     const [data, setData] = useState([]);
-    const [customColumns, setCustomColumns] = useState(props.columns);
+    const [customColumns, setCustomColumns] = useState(columns);
     const [isLoading, setIsLoading] = useState(true);
     const [openForm, setOpenForm] = useState(false);
     const customFields = useRef([]);
 
     //pagination
-    const [count, setCount] = useState(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPageOptions, setRowsPerPageOptions] = useState([5, 10, 20, 30]);
+    const [count, setCount] = useState(0);
+
+    const handlePageChange = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleRowsPerPageChange = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
 
     const getDataAsync = async () => {
-        let data = await getData(page, rowsPerPage);
-        setData(data.data.results);
-        // if (data?.data?.results?.custom_fields) {
-        //     setCustomFields();
-        //     console.log('customdields ', data?.data?.results?.custom_fields);
-        // }
-        setCount(data.data.count);
+        const { data } = await getData(page, rowsPerPage);
+        if (data?.results) {
+            setData(data.results);
+            if (data.count) {
+                setCount(data.count);
+            }
+            if (renderCustomFieldsColumns && data.custom_fields_columns) {
+                customFields.current = data.custom_fields_columns;
+            }
+        }
         setIsLoading(false);
     };
 
-    const appendCustomFieldsColumns = () => {
-        if (renderCustomFieldsColumns) {
-            let newColumns = columns;
-            data.map((item) => {
-                // newColumns.push({ title: item.name, render: (rowData) => rowData.name });
-                if (item.custom_fields?.length > 0) {
-                    item.custom_fields.map((custom_field, index) => {
-                        newColumns.push({
-                            title: custom_field.title,
-                            render: (rowData) => {
-                                return rowData.custom_field[index]?.value;
-                            }
-                        });
-                        //customFields.current = { ...customFields.current, custom_field };
-                        let newArr = customFields.current;
-                        newArr.push(custom_field);
-                        customFields.current = newArr;
-                    });
+    const appendCustomFieldsColumns = (columns) => {
+        const newColumns = [
+            ...columns,
+            ...customFields.current.map(({ title, field }) => ({
+                title,
+                field,
+                render: ({ custom_fields }) => {
+                    const customField = custom_fields.find((cf) => cf[field] !== undefined);
+                    return customField ? customField[field] : null;
                 }
-            });
-            setCustomColumns(newColumns);
-        }
+            }))
+        ];
+        setCustomColumns(newColumns);
     };
 
     const handleOpenAddOrEdit = () => {
@@ -85,7 +91,7 @@ const MTable = (props) => {
 
     useEffect(() => {
         if (data) {
-            appendCustomFieldsColumns();
+            appendCustomFieldsColumns(columns);
         }
     }, [data]);
 
@@ -108,7 +114,12 @@ const MTable = (props) => {
                         }
                     }
                 ]}
-                options={{ emptyRowsWhenPaging: false }}
+                options={{
+                    pageSize: rowsPerPage,
+                    pageSizeOptions: rowsPerPageOptions,
+                    paginationType: 'normal',
+                    emptyRowsWhenPaging: false
+                }}
                 components={{
                     //Custom Pagination
                     Pagination: (defaultProps) => (
@@ -116,16 +127,10 @@ const MTable = (props) => {
                             {...defaultProps}
                             count={count ? count : defaultProps.count}
                             page={page ? page : defaultProps.page}
-                            onPageChange={(e, page) => {
-                                setPage(page);
-                            }}
+                            onPageChange={handlePageChange}
                             rowsPerPage={rowsPerPage}
-                            rowsPerPageOptions={[5, 10, 20, 30]}
-                            onRowsPerPageChange={(event) => {
-                                defaultProps.onRowsPerPageChange(event);
-                                setRowsPerPage(event.target.value);
-                                setPage(0);
-                            }}
+                            rowsPerPageOptions={rowsPerPageOptions}
+                            onRowsPerPageChange={handleRowsPerPageChange}
                         />
                     )
                 }}
